@@ -1,17 +1,19 @@
-.. zametki2.0 documentation master file, created by
-   sphinx-quickstart on Wed Nov 12 19:08:45 2025.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Документация Менеджера заметок
+==============================
 
-zametki2.0 documentation
-========================
+Добро пожаловать в документацию проекта "Менеджер заметок"!
 
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
-
+Это приложение позволяет создавать, редактировать и управлять заметками с поддержкой тегов, приоритетов и статусов.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Содержание:
 
+   modules
+
+Индексы и таблицы
+=================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
