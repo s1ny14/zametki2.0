@@ -16,4 +16,4 @@ Classes:
 from .models import Note
 from .storage import Storage
 
-__all__ = ["Note", "Storage"]
+__all__ = ["Note", "Storage"] # какие имена должны быть доступны при использовании звездочного импорта

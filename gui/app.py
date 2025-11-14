@@ -8,13 +8,11 @@ import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 from notebook import Storage, Note
 
-# === РОЗОВАЯ ТЕМА ===
 BG_COLOR = "#FFF0F5"
 PINK = "#FFC1CC"
 DARK_PINK = "#FF69B4"
 WHITE = "#FFFFFF"
 TEXT_COLOR = "#333333"
-
 
 class NoteApp:
     """Главный класс графического приложения для управления заметками.
@@ -85,24 +83,23 @@ class NoteApp:
         main_frame = ttk.Frame(self.root, padding=15)
         main_frame.pack(fill=tk.BOTH, expand=True)
 
-        # === ЛЕВАЯ ЧАСТЬ: форма ===
         form_frame = ttk.Labelframe(main_frame, text=" Новая заметка ", style='P.TLabelframe', padding=12)
         form_frame.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 15))
 
-        # Заголовок
+        # заголовок
         ttk.Label(form_frame, text="Заголовок:", background=BG_COLOR, font=('Segoe UI', 10)).pack(anchor="w",
                                                                                                   pady=(0, 3))
         self.title_entry = ttk.Entry(form_frame, width=38, font=('Segoe UI', 11))
         self.title_entry.pack(fill=tk.X, pady=2)
 
-        # Содержание
+        # содержание
         ttk.Label(form_frame, text="Содержание:", background=BG_COLOR, font=('Segoe UI', 10)).pack(anchor="w",
                                                                                                    pady=(10, 3))
         self.content_text = scrolledtext.ScrolledText(form_frame, width=38, height=9, wrap=tk.WORD,
                                                       font=('Segoe UI', 11))
         self.content_text.pack(fill=tk.X, pady=2)
 
-        # ХЭШТЕГИ
+        # хэштэги
         ttk.Label(form_frame, text="Хэштеги (#учеба #работа #дом):", background=BG_COLOR, font=('Segoe UI', 10)).pack(
             anchor="w", pady=(12, 3))
         self.tags_entry = ttk.Entry(form_frame, font=('Segoe UI', 11))
@@ -110,7 +107,7 @@ class NoteApp:
         ttk.Label(form_frame, text="Пиши через пробел или запятую", background=BG_COLOR, font=('Segoe UI', 9),
                   foreground="gray").pack(anchor="w")
 
-        # Приоритет
+        # приоритет
         ttk.Label(form_frame, text="Приоритет:", background=BG_COLOR, font=('Segoe UI', 10)).pack(anchor="w",
                                                                                                   pady=(12, 3))
         priority_frame = ttk.Frame(form_frame)
@@ -123,7 +120,7 @@ class NoteApp:
             self.priority_buttons[value] = btn
         self.select_priority("medium")
 
-        # Статус
+        # статус
         ttk.Label(form_frame, text="Статус:", background=BG_COLOR, font=('Segoe UI', 10)).pack(anchor="w", pady=(12, 3))
         status_frame = ttk.Frame(form_frame)
         status_frame.pack(fill=tk.X, pady=2)
@@ -135,15 +132,14 @@ class NoteApp:
             self.status_buttons[value] = btn
         self.select_status("active")
 
-        # Кнопка добавления
+        # кнопка добавления
         ttk.Button(form_frame, text="Добавить заметку", style='Pink.TButton', command=self.add_note).pack(pady=20,
                                                                                                           fill=tk.X)
 
-        # === ПРАВАЯ ЧАСТЬ: список ===
         list_frame = ttk.Labelframe(main_frame, text=" Мои заметки ", style='P.TLabelframe', padding=12)
         list_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
-        # Поиск
+        # поиск
         search_frame = ttk.Frame(list_frame)
         search_frame.pack(fill=tk.X, pady=(0, 8))
         ttk.Label(search_frame, text="Поиск (текст или #тег):", background=BG_COLOR, font=('Segoe UI', 10)).pack(
@@ -156,7 +152,7 @@ class NoteApp:
                               command=lambda: self.search_entry.delete(0, tk.END) or self.refresh_notes())
         clear_btn.pack(side=tk.RIGHT)
 
-        # Таблица
+        # таблица
         columns = ("id", "title", "tags", "priority", "status", "date")
         self.tree = ttk.Treeview(list_frame, columns=columns, show="headings", style='Treeview')
         widths = [50, 280, 180, 90, 90, 100]
@@ -169,7 +165,7 @@ class NoteApp:
         self.tree.bind("<Double-1>", self.show_details)
         self.tree.bind("<Delete>", self.delete_selected)
 
-        # Кнопки
+        # кнопки
         btn_frame = ttk.Frame(list_frame)
         btn_frame.pack(pady=8)
         ttk.Button(btn_frame, text="Удалить выбранное", style='Pink.TButton', command=self.delete_selected).pack(
@@ -243,7 +239,7 @@ class NoteApp:
             priority_text = {"low": "Низкий", "medium": "Средний", "high": "Высокий"}[note.priority]
             status_text = {"active": "В работе", "done": "Готово", "archived": "Архив"}[note.status]
 
-            # Поиск по заголовку, содержимому или тегам
+            # поиск по заголовку, содержимому или тегам
             if search:
                 if (search in note.title.lower() or
                         search in note.content.lower() or
