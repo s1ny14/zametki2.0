@@ -35,7 +35,7 @@ class NoteApp:
         self.root.geometry("950x650")
         self.root.minsize(850, 550)
         self.root.configure(bg=BG_COLOR)
-        self.storage = Storage(file_path=storage_file)
+        self.storage = Storage(file_path=storage_file) # чтобы принимал сторэдж файл
         self.debug = debug
 
         if self.debug:

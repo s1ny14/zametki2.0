@@ -16,21 +16,21 @@ import argparse
 from gui.app import NoteApp
 
 def parse_arguments():
-    """"""
+    """Парсит аргументы ком-ой строки"""
     parser = argparse.ArgumentParser(
         description="Менеджер заметок",
-        epilog="Пример: python main.py --file my_notes.json"
+        epilog="Описание или примеры использ-я"
     )
 
     parser.add_argument(
-        '-f', '--file',
+        '-f', '--file', # работа с разными файлами
         type=str,
         default="notes.json",
         help="Путь к файлу notes.json"
     )
 
     parser.add_argument(
-        '--debug',
+        '--debug', # удобная отладка
         action='store_true',
         help="Включить режим отладки"
     )
@@ -41,5 +41,5 @@ if __name__ == "__main__":
     args = parse_arguments()
 
     root = tk.Tk()
-    app = NoteApp(root, storage_file=args.file, debug=args.debug)
+    app = NoteApp(root, storage_file=args.file, debug=args.debug) # передаём режим отладки
     root.mainloop()
