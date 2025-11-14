@@ -24,7 +24,7 @@ class NoteApp:
         status_buttons (dict): Кнопки выбора статуса
     """
 
-    def __init__(self, root):
+    def __init__(self, root, storage_file="notes.json", debug=False):
         """Инициализирует приложение.
 
         Args:
@@ -35,7 +35,11 @@ class NoteApp:
         self.root.geometry("950x650")
         self.root.minsize(850, 550)
         self.root.configure(bg=BG_COLOR)
-        self.storage = Storage()
+        self.storage = Storage(file_path=storage_file)
+        self.debug = debug
+
+        if self.debug:
+            print(f"[DEBUG] Используется файл хранилища: {storage_file}")
 
         self.priority_buttons = {}
         self.status_buttons = {}
