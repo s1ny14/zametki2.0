@@ -77,3 +77,22 @@ class TestNote(unittest.TestCase):
         self.assertEqual(note.tags, ["тест"])
         self.assertEqual(note.created_at, "2024-01-01T00:00:00")
 
+    def test_note_empty_tags(self):
+        """Тест обработки пустых тегов"""
+        note = Note("Тест", "Содержание", tags=[])
+        self.assertEqual(note.tags, [])
+
+        note = Note("Тест", "Содержание", tags=["", "  ", "# "])
+        self.assertEqual(note.tags, [])
+
+    def test_note_priority_validation(self):
+        """Тест валидации приоритета (должен быть в нижнем регистре)"""
+        note = Note("Тест", "Содержание", priority="HIGH")
+        self.assertEqual(note.priority, "high")
+
+        note = Note("Тест", "Содержание", priority="Medium")
+        self.assertEqual(note.priority, "medium")
+
+
+if __name__ == '__main__':
+    unittest.main()
