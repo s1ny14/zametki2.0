@@ -13,9 +13,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import tkinter as tk
 from notebook import Storage, Note
 from gui.app import NoteApp
-
+from unittest import mock
 
 class TestNoteApp(unittest.TestCase):
+
     """Тесты для класса NoteApp"""
 
     def setUp(self):
@@ -23,11 +24,11 @@ class TestNoteApp(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp()
         self.test_file = os.path.join(self.test_dir, "test_notes.json")
 
-        # Создаем корневое окно для тестов
+        # создаем корневое окно для тестов
         self.root = tk.Tk()
         self.root.withdraw()  # скрываем окно во время тестов
 
-        self.app = NoteApp(self.root, storage_file=self.test_file, debug=True)
+        self.app = NoteApp(self.root, storage_file=self.test_file, debug=True) # созд объект класса
 
     def tearDown(self):
         """Очистка после тестов"""
@@ -110,9 +111,8 @@ class TestNoteApp(unittest.TestCase):
         self.app.content_text.insert("1.0", "Тестовое содержание")
 
         # мокаем messagebox чтобы не появлялось окно
-        from unittest import mock
         with mock.patch('tkinter.messagebox.showinfo') as mock_info:
-            self.app.add_note()  # Это вызовет парсинг тегов внутри метода
+            self.app.add_note()  # это вызовет парсинг тегов внутри метода
 
             # проверяем что шоуинфо был вызван (успешное добавление)
             mock_info.assert_called_once()
@@ -127,11 +127,11 @@ class TestNoteApp(unittest.TestCase):
         """Тест успешного добавления заметки"""
         self.app.title_entry.insert(0, "Тест заголовок")
         self.app.content_text.insert("1.0", "Тест содержание")
-
         pass
 
 
 class TestNoteAppIntegration(unittest.TestCase):
+
     """Интеграционные тесты для приложения"""
 
     def setUp(self):

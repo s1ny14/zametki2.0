@@ -87,7 +87,7 @@ class TestNote(unittest.TestCase):
         self.assertEqual(note.tags, ["#"])
 
     def test_note_priority_validation(self):
-        """Тест валидации приоритета (должен быть в нижнем регистре)"""
+        """Тест приоритета (должен быть в нижнем регистре)"""
         note = Note("Тест", "Содержание", priority="HIGH")
         self.assertEqual(note.priority, "high")
 
