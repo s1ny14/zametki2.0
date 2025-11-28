@@ -9,6 +9,7 @@ import tempfile
 import shutil
 
 import tkinter as tk
+from notebook import Storage, Note
 from gui.app import NoteApp
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -101,4 +102,41 @@ class TestNoteApp(unittest.TestCase):
 
         # здесь нужно использовать mock для messagebox.showinfo
         pass
+
+
+class TestNoteAppIntegration(unittest.TestCase):
+
+    """Интеграционные тесты для приложения"""
+
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+        self.test_file = os.path.join(self.test_dir, "test_notes.json")
+        self.root = tk.Tk()
+        self.root.withdraw()
+
+    def tearDown(self):
+        self.root.destroy()
+        shutil.rmtree(self.test_dir)
+
+    def test_app_with_prepopulated_data(self):
+        """Тест приложения с предварительно заполненными данными"""
+        # создаем тестовые данные
+        storage = Storage(self.test_file)
+        note1 = Note("Заметка 1", "Содержание 1", tags=["тест"])
+        note2 = Note("Заметка 2", "Содержание 2", priority="high")
+        storage.save(note1)
+        storage.save(note2)
+
+        # создаем приложение с существующими данными
+        app = NoteApp(self.root, storage_file=self.test_file)
+
+        # проверяем, что данные загружены
+        notes = app.storage.get_all()
+        self.assertEqual(len(notes), 2)
+
+        app.root.destroy()
+
+
+if __name__ == '__main__':
+    unittest.main()
 
