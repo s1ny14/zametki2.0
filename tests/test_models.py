@@ -12,12 +12,13 @@ from notebook.models import Note
 
 
 class TestNote(unittest.TestCase):
+
     """Тесты для класса Note"""
 
     def test_note_creation(self):
         """Тест создания заметки с минимальными параметрами"""
         note = Note("Тест", "Содержание теста")
-        self.assertEqual(note.title, "Тест")
+        self.assertEqual(note.title, "Тест") # сравнивает корректность внесенных данных
         self.assertEqual(note.content, "Содержание теста")
         self.assertEqual(note.priority, "medium")
         self.assertEqual(note.status, "active")
