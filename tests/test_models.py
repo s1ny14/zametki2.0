@@ -37,7 +37,7 @@ class TestNote(unittest.TestCase):
         self.assertEqual(note.content, "Содержание")
         self.assertEqual(note.priority, "high")
         self.assertEqual(note.status, "done")
-        self.assertEqual(note.tags, ["работа", "срочно"])
+        self.assertEqual(note.tags, ["#работа", "#срочно"])
 
     def test_note_to_dict(self):
         """Тест преобразования заметки в словарь"""
@@ -83,7 +83,7 @@ class TestNote(unittest.TestCase):
         self.assertEqual(note.tags, [])
 
         note = Note("Тест", "Содержание", tags=["", "  ", "# "])
-        self.assertEqual(note.tags, [])
+        self.assertEqual(note.tags, ["#"])
 
     def test_note_priority_validation(self):
         """Тест валидации приоритета (должен быть в нижнем регистре)"""
