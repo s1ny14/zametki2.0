@@ -24,9 +24,9 @@ class TestNoteApp(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp()
         self.test_file = os.path.join(self.test_dir, "test_notes.json")
 
-        # Создаем корневое окно для тестов
+        # создаем корневое окно для тестов
         self.root = tk.Tk()
-        self.root.withdraw()  # Скрываем окно во время тестов
+        self.root.withdraw()  # скрываем окно во время тестов
 
         self.app = NoteApp(self.root, storage_file=self.test_file, debug=True)
 
@@ -35,7 +35,7 @@ class TestNoteApp(unittest.TestCase):
         try:
             self.root.destroy()
         except tk.TclError:
-            pass  # Окно уже уничтожено
+            pass  # окно уже уничтожено
         shutil.rmtree(self.test_dir)
 
     def test_app_initialization(self):
@@ -62,37 +62,37 @@ class TestNoteApp(unittest.TestCase):
 
     def test_add_note_validation(self):
         """Тест валидации при добавлении заметки"""
-        # Пытаемся добавить заметку без заголовка и содержания
+        # пытаемся добавить заметку без заголовка и содержания
         self.app.title_entry.delete(0, tk.END)
         self.app.content_text.delete("1.0", tk.END)
 
-        # Мокаем messagebox.showwarning
+        # мокаем messagebox.showwarning
         with mock.patch('tkinter.messagebox.showwarning') as mock_warning:
             self.app.add_note()
 
-            # Проверяем что showwarning был вызван с правильными параметрами
+            # проверяем что showwarning был вызван с правильными параметрами
             mock_warning.assert_called_once_with("Ошибка", "Заполните заголовок и содержание!")
 
     def test_add_note_success(self):
         """Тест успешного добавления заметки"""
-        # Заполняем форму данными
+        # заполняем форму данными
         self.app.title_entry.insert(0, "Тест заголовок")
         self.app.content_text.insert("1.0", "Тест содержание")
         self.app.tags_entry.insert(0, "тег1, тег2")
 
-        # Мокаем messagebox.showinfo чтобы проверить вызов
+        # мокаем messagebox.showinfo чтобы проверить вызов
         with mock.patch('tkinter.messagebox.showinfo') as mock_showinfo:
             self.app.add_note()
 
-            # Проверяем что showinfo был вызван
+            # проверяем что showinfo был вызван
             mock_showinfo.assert_called_once()
 
-            # Проверяем аргументы вызова
+            # проверяем аргументы вызова
             call_args = mock_showinfo.call_args[0]  # (args, kwargs)
             self.assertEqual(call_args[0], "Готово!")  # title
             self.assertIn("Заметка добавлена (ID:", call_args[1])  # message
 
-        # Проверяем что заметка действительно добавилась в storage
+        # проверяем что заметка действительно добавилась в storage
         notes = self.app.storage.get_all()
         self.assertEqual(len(notes), 1)
         self.assertEqual(notes[0].title, "Тест заголовок")
@@ -115,18 +115,18 @@ class TestNoteApp(unittest.TestCase):
 
     def test_tags_parsing(self):
         """Тест парсинга тегов из строки"""
-        # Заполняем форму данными
+        # заполняем форму данными
         self.app.title_entry.insert(0, "Тестовый заголовок")
         self.app.content_text.insert("1.0", "Тестовое содержание")
         self.app.tags_entry.insert(0, "#тег1, тег2  #тег3")
 
-        # Мокаем messagebox чтобы не появлялось окно
+        # мокаем messagebox чтобы не появлялось окно
         with mock.patch('tkinter.messagebox.showinfo'):
             self.app.add_note()
 
-        # Проверяем что теги правильно распарсились
+        # проверяем что теги правильно распарсились
         notes = self.app.storage.get_all()
-        if notes:  # Если заметка была добавлена
+        if notes:  # если заметка была добавлена
             self.assertEqual(notes[-1].tags, ["тег1", "тег2", "тег3"])
 
 
@@ -143,26 +143,26 @@ class TestNoteAppIntegration(unittest.TestCase):
 
     def test_app_with_prepopulated_data(self):
         """Тест приложения с предварительно заполненными данными"""
-        # Создаем тестовые данные
+        # создаем тестовые данные
         storage = Storage(self.test_file)
         note1 = Note("Заметка 1", "Содержание 1", tags=["тест"])
         note2 = Note("Заметка 2", "Содержание 2", priority="high")
         storage.save(note1)
         storage.save(note2)
 
-        # Создаем временное окно для теста
+        # создаем временное окно для теста
         root = tk.Tk()
         root.withdraw()
 
         try:
-            # Создаем приложение с существующими данными
+            # создаем приложение с существующими данными
             app = NoteApp(root, storage_file=self.test_file)
 
-            # Проверяем, что данные загружены
+            # проверяем, что данные загружены
             notes = app.storage.get_all()
             self.assertEqual(len(notes), 2)
         finally:
-            # Всегда уничтожаем окно
+            # всегда уничтожаем окно
             root.destroy()
 
 

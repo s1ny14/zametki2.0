@@ -15,7 +15,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 class TestStorage(unittest.TestCase):
 
-
     """Тесты для класса Storage"""
 
     def setUp(self):
