@@ -6,7 +6,7 @@
 
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
-from notebook import Storage, Note
+from notebook.models import PostgresStorage, Note  # Импортируем правильные классы
 
 BG_COLOR = "#FFF0F5"
 PINK = "#FFC1CC"
@@ -14,32 +14,36 @@ DARK_PINK = "#FF69B4"
 WHITE = "#FFFFFF"
 TEXT_COLOR = "#333333"
 
+
 class NoteApp:
     """Главный класс графического приложения для управления заметками.
 
     Attributes:
         root (tk.Tk): Корневое окно приложения
-        storage (Storage): Объект для работы с хранилищем
+        storage (PostgresStorage): Объект для работы с хранилищем PostgreSQL
         priority_buttons (dict): Кнопки выбора приоритета
         status_buttons (dict): Кнопки выбора статуса
     """
 
-    def __init__(self, root, storage_file="notes.json", debug=False):
+    def __init__(self, root, debug=False):
         """Инициализирует приложение.
 
         Args:
             root (tk.Tk): Корневое окно Tkinter
+            debug (bool): Режим отладки
         """
         self.root = root
         self.root.title("Менеджер заметок — #хэштеги")
         self.root.geometry("950x650")
         self.root.minsize(850, 550)
         self.root.configure(bg=BG_COLOR)
-        self.storage = Storage(file_path=storage_file) # чтобы принимал сторэдж файл
+
+        # Создаем хранилище PostgreSQL
+        self.storage = PostgresStorage()
         self.debug = debug
 
         if self.debug:
-            print(f"[DEBUG] Используется файл хранилища: {storage_file}")
+            print(f"[DEBUG] Используется PostgreSQL хранилище")
 
         self.priority_buttons = {}
         self.status_buttons = {}
@@ -208,19 +212,21 @@ class NoteApp:
         tags_input = self.tags_entry.get()
         tags = [t.strip().lstrip('#').lower() for t in tags_input.replace(',', ' ').split() if t.strip()]
 
-        note = Note(
+        # Используем метод create_note из PostgresStorage
+        result = self.storage.create_note(
             title=title,
             content=content,
             priority=self.priority_var.get(),
             status=self.status_var.get(),
             tags=tags
         )
-        if self.storage.save(note):
-            messagebox.showinfo("Готово!", f"Заметка добавлена (ID: {note.id})")
+
+        if result:
+            messagebox.showinfo("Готово!", f"Заметка добавлена (ID: {result['id']})")
             self.clear_form()
             self.refresh_notes()
         else:
-            messagebox.showerror("Ошибка", "Не удалось сохранить")
+            messagebox.showerror("Ошибка", "Не удалось сохранить заметку в базе данных")
 
     def clear_form(self):
         """Очищает форму ввода новой заметки."""
@@ -236,24 +242,31 @@ class NoteApp:
             self.tree.delete(item)
 
         search = self.search_entry.get().lower().lstrip('#')
-        notes = self.storage.get_all()
 
-        for note in notes:
+        # Получаем заметки из PostgreSQL
+        notes_data = self.storage.get_all_notes()
+
+        for note_dict in notes_data:
+            # Создаем объект Note из словаря для удобства
+            note = Note.from_dict(note_dict)
+
             tags_str = ", ".join([f"#{t}" for t in note.tags]) if note.tags else "—"
             priority_text = {"low": "Низкий", "medium": "Средний", "high": "Высокий"}[note.priority]
             status_text = {"active": "В работе", "done": "Готово", "archived": "Архив"}[note.status]
 
+            # Форматируем дату (берем только дату без времени)
+            created_date = note.created_at[:10] if note.created_at else "—"
+
             # поиск по заголовку, содержимому или тегам
             if search:
-                if (search in note.title.lower() or
-                        search in note.content.lower() or
-                        search in " ".join(note.tags)):
+                search_text = f"{note.title} {note.content} {' '.join(note.tags)}".lower()
+                if search in search_text:
                     self.tree.insert("", tk.END, values=(
-                        note.id, note.title, tags_str, priority_text, status_text, note.created_at[:10]
+                        note.id, note.title, tags_str, priority_text, status_text, created_date
                     ))
             else:
                 self.tree.insert("", tk.END, values=(
-                    note.id, note.title, tags_str, priority_text, status_text, note.created_at[:10]
+                    note.id, note.title, tags_str, priority_text, status_text, created_date
                 ))
 
     def show_details(self, event=None):
@@ -267,8 +280,12 @@ class NoteApp:
             return
         item = self.tree.item(selected[0])
         note_id = int(item["values"][0])
-        note = next((n for n in self.storage.get_all() if n.id == note_id), None)
-        if note:
+
+        # Получаем заметку из PostgreSQL
+        note_data = self.storage.get_note_by_id(note_id)
+
+        if note_data:
+            note = Note.from_dict(note_data)
             self.open_detail_window(note)
 
     def open_detail_window(self, note: Note):
@@ -286,8 +303,21 @@ class NoteApp:
 
         ttk.Label(win, text=note.title, font=("Segoe UI", 16, "bold"), background=BG_COLOR, foreground=DARK_PINK).pack(
             pady=15, anchor="w", padx=20)
-        meta = f"Приоритет: {note.priority} | Статус: {note.status} | {note.created_at[:10]}"
+
+        # Форматируем дату для отображения
+        if note.created_at:
+            try:
+                from datetime import datetime
+                created_dt = datetime.fromisoformat(note.created_at.replace('Z', '+00:00'))
+                created_str = created_dt.strftime("%d.%m.%Y %H:%M")
+            except:
+                created_str = note.created_at[:10]
+        else:
+            created_str = "—"
+
+        meta = f"Приоритет: {note.priority} | Статус: {note.status} | {created_str}"
         ttk.Label(win, text=meta, background=BG_COLOR, foreground="gray").pack(anchor="w", padx=20)
+
         if note.tags:
             tags_str = " • ".join([f"#{t}" for t in note.tags])
             ttk.Label(win, text=tags_str, background=BG_COLOR, foreground=DARK_PINK, font=('Segoe UI', 11)).pack(
@@ -311,8 +341,8 @@ class NoteApp:
             return
         if messagebox.askyesno("Удалить?", "Удалить выбранную заметку?"):
             note_id = int(self.tree.item(selected[0], "values")[0])
-            if self.storage.delete(note_id):
+            if self.storage.delete_note(note_id):
                 self.refresh_notes()
                 messagebox.showinfo("Удалено", f"Заметка ID {note_id} удалена")
             else:
-                messagebox.showerror("Ошибка", "Не удалось удалить")
+                messagebox.showerror("Ошибка", "Не удалось удалить заметку")

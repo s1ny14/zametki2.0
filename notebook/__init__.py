@@ -1,19 +1,18 @@
 """
-Пакет notebook - модуль для управления заметками.
+Пакет notebook - модуль для управления заметками с PostgreSQL.
 
 Этот пакет предоставляет функциональность для создания, хранения
-и управления заметками с поддержкой тегов и метаданных.
+и управления заметками с поддержкой тегов и метаданными в PostgreSQL.
 
 Modules:
-    models: Определение класса Note и методов работы с заметками
-    storage: Класс для сохранения и загрузки заметок из JSON-файла
+    models: Классы Note и PostgresStorage для работы с заметками
+    migrate: Миграция данных из JSON в PostgreSQL
 
 Classes:
     Note: Класс, представляющий заметку
-    Storage: Класс для работы с хранилищем заметок
+    PostgresStorage: Класс для работы с PostgreSQL хранилищем
 """
 
-from .models import Note
-from .storage import Storage
+from .models import Note, PostgresStorage
 
-__all__ = ["Note", "Storage"] # какие имена должны быть доступны при использовании звездочного импорта
+__all__ = ["Note", "PostgresStorage"]
