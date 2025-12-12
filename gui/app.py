@@ -160,14 +160,18 @@ class NoteApp:
                               command=lambda: self.search_entry.delete(0, tk.END) or self.refresh_notes())
         clear_btn.pack(side=tk.RIGHT)
 
-        # таблица
-        columns = ("id", "title", "tags", "priority", "status", "date")
+        # таблица с правильными столбцами
+        columns = ("number", "id", "title", "tags", "priority", "status", "date")
         self.tree = ttk.Treeview(list_frame, columns=columns, show="headings", style='Treeview')
-        widths = [50, 280, 180, 90, 90, 100]
-        texts = ["ID", "Заголовок", "Хэштеги", "Приоритет", "Статус", "Дата"]
+        widths = [50, 0, 280, 180, 90, 90, 100]  # 0 - скрываем ID
+        texts = ["№", "ID", "Заголовок", "Хэштеги", "Приоритет", "Статус", "Дата"]
         for col, text, width in zip(columns, texts, widths):
             self.tree.heading(col, text=text)
             self.tree.column(col, width=width, anchor="w")
+
+        # Скрываем столбец с реальным ID
+        self.tree.column("id", width=0, stretch=False, minwidth=0)
+
         self.tree.pack(fill=tk.BOTH, expand=True)
 
         self.tree.bind("<Double-1>", self.show_details)
@@ -246,7 +250,13 @@ class NoteApp:
         # Получаем заметки из PostgreSQL
         notes_data = self.storage.get_all_notes()
 
-        for note_dict in notes_data:
+        # Сортируем по дате создания (новые сверху)
+        notes_data_sorted = sorted(notes_data,
+                                  key=lambda x: x.get('created_at', ''),
+                                  reverse=True)
+
+        # Добавляем порядковые номера
+        for index, note_dict in enumerate(notes_data_sorted, 1):
             # Создаем объект Note из словаря для удобства
             note = Note.from_dict(note_dict)
 
@@ -257,16 +267,28 @@ class NoteApp:
             # Форматируем дату (берем только дату без времени)
             created_date = note.created_at[:10] if note.created_at else "—"
 
-            # поиск по заголовку, содержимому или тегам
+            # Поиск по заголовку, содержимому или тегам
             if search:
                 search_text = f"{note.title} {note.content} {' '.join(note.tags)}".lower()
                 if search in search_text:
                     self.tree.insert("", tk.END, values=(
-                        note.id, note.title, tags_str, priority_text, status_text, created_date
+                        index,  # Порядковый номер (всегда 1, 2, 3...)
+                        note.id,  # Реальный ID (скрытый)
+                        note.title,
+                        tags_str,
+                        priority_text,
+                        status_text,
+                        created_date
                     ))
             else:
                 self.tree.insert("", tk.END, values=(
-                    note.id, note.title, tags_str, priority_text, status_text, created_date
+                    index,  # Порядковый номер (всегда 1, 2, 3...)
+                    note.id,  # Реальный ID (скрытый)
+                    note.title,
+                    tags_str,
+                    priority_text,
+                    status_text,
+                    created_date
                 ))
 
     def show_details(self, event=None):
@@ -279,7 +301,8 @@ class NoteApp:
         if not selected:
             return
         item = self.tree.item(selected[0])
-        note_id = int(item["values"][0])
+        # Получаем реальный ID из скрытого столбца (индекс 1 - второй столбец)
+        note_id = int(item["values"][1])
 
         # Получаем заметку из PostgreSQL
         note_data = self.storage.get_note_by_id(note_id)
@@ -340,7 +363,10 @@ class NoteApp:
             messagebox.showwarning("Выберите", "Выберите заметку для удаления")
             return
         if messagebox.askyesno("Удалить?", "Удалить выбранную заметку?"):
-            note_id = int(self.tree.item(selected[0], "values")[0])
+            # Получаем реальный ID из скрытого столбца (индекс 1 - второй столбец)
+            item = self.tree.item(selected[0])
+            note_id = int(item["values"][1])
+
             if self.storage.delete_note(note_id):
                 self.refresh_notes()
                 messagebox.showinfo("Удалено", f"Заметка ID {note_id} удалена")

@@ -5,7 +5,6 @@
 import psycopg2
 import getpass
 
-
 def setup_database():
     """Создает базу данных и таблицы для заметок."""
     print("=== НАСТРОЙКА БАЗЫ ДАННЫХ ДЛЯ МЕНЕДЖЕРА ЗАМЕТОК ===\n")

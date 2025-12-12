@@ -31,7 +31,7 @@ try:
     table_exists = cursor.fetchone()[0]
 
     if table_exists:
-        print("✓ Таблица 'notes' существует")
+        print("Таблица 'notes' существует")
 
         # Показываем структуру
         cursor.execute("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'notes'")
@@ -47,7 +47,7 @@ try:
         print(f"\nКоличество заметок: {count}")
     else:
         print("✗ Таблица 'notes' не существует")
-        print("\nСоздаю таблицу...")
+        print("\nСоздаю таблицу")
 
         cursor.execute("""
             CREATE TABLE notes (
@@ -67,7 +67,7 @@ try:
         """)
 
         conn.commit()
-        print("✓ Таблица создана успешно")
+        print("Таблица создана успешно")
 
     cursor.close()
     conn.close()

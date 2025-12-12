@@ -22,12 +22,6 @@ def parse_arguments():
         description="Менеджер заметок с PostgreSQL",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Примеры использования:
-  python main.py
-  python main.py --db-url "postgresql://user:pass@localhost:5432/notes_db"
-  python main.py --migrate
-  python main.py --debug
-  
 Параметры подключения по умолчанию берутся из .env файла:
   DB_HOST=localhost
   DB_PORT=5432
@@ -90,7 +84,7 @@ def main():
             app = NoteApp(root, storage=storage, debug=args.debug)
         except TypeError:
             # Если конструктор не принимает storage, создаем без него
-            print("NoteApp не принимает storage в конструкторе")
+            #print("NoteApp не принимает storage в конструкторе")
             app = NoteApp(root, debug=args.debug)
 
         root.mainloop()
